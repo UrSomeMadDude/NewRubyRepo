@@ -1,0 +1,60 @@
+<h1>Post</h1>
+
+<div>
+	<%= @post.title %>
+</div>
+
+<div>
+	<%= @post.body %>
+</div>
+
+<div>
+	<%= @post.user.email%>
+</div>
+
+<ul>
+	<li>
+		<p> Likes: <%= @post.likes.count %></p> 
+	</li>
+</ul>
+
+<% like = current_user.likes.find_by(post: @post) %>
+<% if like.nil? %>
+	<form action="/likes" method="post">
+		<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token %>">
+		<input type="hidden" name="like[post_id]" value="<%=@post.id %>">
+		<input type="submit" value="Like">
+	</form>
+<% else %>
+	<form action="<%= like_path(like) %>" method="post">
+		<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token %>">
+		<input type="hidden" name="_method" value="DELETE">
+		<input type="submit" value="Unlike">
+	</form>
+<% end %>
+
+<h1>Comments</h1>
+<ul>
+	<% @post.comments.each do |comment| %>
+		<li>
+			<%= comment.body %>
+		</li>
+	<% end %>
+</ul>
+
+<%= form_with model: @post.comments.build, url: [@post, @post.comments.build] do |f| %>
+	<div>
+		<%= f.label :body %>
+		<%= f.text_area :body %>
+	</div>
+	<div>
+		<%= f.label :author %>
+		<%= f.text_field :author %>
+	</div>
+	<div>
+		<%= f.submit %>
+	</div>
+<% end %>
+
+
+<%= link_to 'Back', posts_path %>
